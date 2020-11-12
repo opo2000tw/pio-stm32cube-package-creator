@@ -11,21 +11,21 @@ import datetime
 
 # list of all repos with folder names 
 repos = [
-    ("f0", "https://github.com/STMicroelectronics/STM32CubeF0.git"),
-    ("f1", "https://github.com/STMicroelectronics/STM32CubeF1.git"),
-    ("f2", "https://github.com/STMicroelectronics/STM32CubeF2.git"),
-    ("f3", "https://github.com/STMicroelectronics/STM32CubeF3.git"),
-    ("f4", "https://github.com/STMicroelectronics/STM32CubeF4.git"),
+    # ("f0", "https://github.com/STMicroelectronics/STM32CubeF0.git"),
+    # ("f1", "https://github.com/STMicroelectronics/STM32CubeF1.git"),
+    # ("f2", "https://github.com/STMicroelectronics/STM32CubeF2.git"),
+    # ("f3", "https://github.com/STMicroelectronics/STM32CubeF3.git"),
+    # ("f4", "https://github.com/STMicroelectronics/STM32CubeF4.git"),
     ("f7", "https://github.com/STMicroelectronics/STM32CubeF7.git"),
-    ("l0", "https://github.com/STMicroelectronics/STM32CubeL0.git"),
-    ("l1", "https://github.com/STMicroelectronics/STM32CubeL1.git"),
-    ("l4", "https://github.com/STMicroelectronics/STM32CubeL4.git"),
-    ("l5", "https://github.com/STMicroelectronics/STM32CubeL5.git"),
-    ("g0", "https://github.com/STMicroelectronics/STM32CubeG0.git"),
-    ("g4", "https://github.com/STMicroelectronics/STM32CubeG4.git"),
-    ("h7", "https://github.com/STMicroelectronics/STM32CubeH7.git"),
-    ("wb", "https://github.com/STMicroelectronics/STM32CubeWB.git"),
-    ("mp1", "https://github.com/STMicroelectronics/STM32CubeMP1.git")
+    # ("l0", "https://github.com/STMicroelectronics/STM32CubeL0.git"),
+    # ("l1", "https://github.com/STMicroelectronics/STM32CubeL1.git"),
+    # ("l4", "https://github.com/STMicroelectronics/STM32CubeL4.git"),
+    # ("l5", "https://github.com/STMicroelectronics/STM32CubeL5.git"),
+    # ("g0", "https://github.com/STMicroelectronics/STM32CubeG0.git"),
+    # ("g4", "https://github.com/STMicroelectronics/STM32CubeG4.git"),
+    # ("h7", "https://github.com/STMicroelectronics/STM32CubeH7.git"),
+    # ("wb", "https://github.com/STMicroelectronics/STM32CubeWB.git"),
+    # ("mp1", "https://github.com/STMicroelectronics/STM32CubeMP1.git")
 ]
 
 def get_script_directory(): 
@@ -37,7 +37,7 @@ def run_command(args, cwd=None):
     if cwd is None: 
         cwd = get_script_directory()
     print("[+] Executing %s in path %s" % (' '.join(args), cwd))
-    returncode = subprocess.call(args, shell=True, cwd=cwd)
+    returncode = subprocess.call(args, shell=False, cwd=cwd)
     if returncode != 0:
         print("Command failed with exit code %d. Check output." % returncode)
         return False
