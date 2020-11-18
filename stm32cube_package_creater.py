@@ -1,15 +1,15 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 import sys
 import os
 import subprocess
 from os import path
-from pathlib import Path    
+from pathlib import Path
 import argparse
 import shutil
 import json
 import datetime
 
-# list of all repos with folder names 
+# list of all repos with folder names
 repos = [
     # ("f0", "https://github.com/STMicroelectronics/STM32CubeF0.git"),
     # ("f1", "https://github.com/STMicroelectronics/STM32CubeF1.git"),
@@ -28,13 +28,13 @@ repos = [
     # ("mp1", "https://github.com/STMicroelectronics/STM32CubeMP1.git")
 ]
 
-def get_script_directory(): 
+def get_script_directory():
     return path.dirname(os.path.realpath(__file__))
 
 def run_command(args, cwd=None):
     if verbose and "git" in args:
         args.insert(2, "-v")
-    if cwd is None: 
+    if cwd is None:
         cwd = get_script_directory()
     print("[+] Executing %s in path %s" % (' '.join(args), cwd))
     returncode = subprocess.call(args, shell=False, cwd=cwd)
@@ -57,7 +57,7 @@ def get_target_folder_from_gitlink(git_link):
 def check_if_only_update(git_link):
     dest_folder = get_target_folder_from_gitlink(git_link)
     print("[+] Checking if folder %s already contains cloned data" % dest_folder)
-    if dest_folder.exists(): 
+    if dest_folder.exists():
         print("[+] Target download folder %s already exists. Only attempting a git pull." % dest_folder)
         if run_command(['git', 'pull'], cwd=str(dest_folder)) is False:
             print("[-] Git pull failed :(.")
@@ -65,10 +65,10 @@ def check_if_only_update(git_link):
         else:
             print("[+] Git pull update was ok.")
             return False # do not full clone
-    else: 
+    else:
         return True # continue
 
-def clone_or_update_all_repos(verb): 
+def clone_or_update_all_repos(verb):
     for (desc, git_link) in repos:
         print("[+] Cloning STM32%s package (%s)" % (str.upper(desc), git_link))
         if check_if_only_update(git_link):
@@ -91,7 +91,7 @@ def copy_sdk_directories(git_link, target_folder, target_folder_root):
         "Release_Notes.html",
         "License.md"
     ]
-    for elem in copy_list: 
+    for elem in copy_list:
         src_path = Path(download_root, elem)
         dest_path = Path(target_root, elem)
         if not src_path.exists():
@@ -102,16 +102,16 @@ def copy_sdk_directories(git_link, target_folder, target_folder_root):
         try:
             if src_path.is_dir():
                 shutil.copytree(src_path, dest_path)
-            else: #is file 
+            else: #is file
                 shutil.copy2(src_path, dest_path)
         except Exception as exc:
             print("[-] Exception during copying.")
             print(str(exc))
-    # special case: duplicate stm32YYxx_hal_conf_template.h from source download as stm32YYxx_hal_conf.h in target. 
+    # special case: duplicate stm32YYxx_hal_conf_template.h from source download as stm32YYxx_hal_conf.h in target.
     # this is what the current framawork-stm32cube package does, too..
     # works for all tested repos
-    source_template = Path(download_root, "Drivers", "STM32" + str.upper(target_folder) + "xx_HAL_Driver", "Inc",  "stm32" + str.upper(target_folder) + "xx_hal_conf_template.h")
-    dest_file = Path(target_root, "Drivers", "STM32" + str.upper(target_folder) + "xx_HAL_Driver", "Inc",  "stm32" + str.upper(target_folder) + "xx_hal_conf.h")
+    source_template = Path(download_root, "Drivers", "STM32" + str.upper(target_folder) + "xx_HAL_Driver", "Inc",  "stm32" + str.lower(target_folder) + "xx_hal_conf_template.h")
+    dest_file = Path(target_root, "Drivers", "STM32" + str.upper(target_folder) + "xx_HAL_Driver", "Inc",  "stm32" + str.lower(target_folder) + "xx_hal_conf.h")
     print("Copying conf template from %s to %s" % (source_template, dest_file))
     try:
         shutil.copy2(source_template, dest_file)
@@ -119,12 +119,12 @@ def copy_sdk_directories(git_link, target_folder, target_folder_root):
         print("[-] Exception during copying.")
         print(str(exc))
 
-    # fixup step 2: 
-    # stm32cube builder scripts excepts all libs to be in Drivers/CMSIS/Lib/GCC. 
+    # fixup step 2:
+    # stm32cube builder scripts excepts all libs to be in Drivers/CMSIS/Lib/GCC.
     # but with recent versions, some of these files have moved to CMSIS/DSP/Lib/GCC (like, libarm_cortexM4lf_math.a)
-    # we have to move these files so that PlatformIO can find them. 
+    # we have to move these files so that PlatformIO can find them.
     dsp_lib_path = Path(target_root, "Drivers", "CMSIS", "DSP", "Lib", "GCC")
-    if dsp_lib_path.exists(): 
+    if dsp_lib_path.exists():
         print("[.] Detected DSP libraries in %s. Attempting to move." % dsp_lib_path)
         shutil.move(dsp_lib_path, Path(target_root, "Drivers", "CMSIS", "Lib", "GCC"))
 
@@ -160,7 +160,7 @@ def copy_all_sdk_dirs(target_folder_root="created_package"):
         # desc text is also target folder name
         copy_sdk_directories(git_link, desc, target_folder_root)
 
-def get_package_datecode(): 
+def get_package_datecode():
     return '{0:%y%m%d}'.format(datetime.datetime.utcnow())
 
 def create_pio_package(target_folder_root="created_package"):
@@ -185,11 +185,11 @@ def create_pio_package(target_folder_root="created_package"):
     package_dest = Path(os.path.join(get_script_directory(), target_folder_root, "package.json"))
     try:
         package_dest.write_text(package_content)
-    except Exception as exc: 
+    except Exception as exc:
         print("[-] Exception during copying tp %s" % str(package_dest))
         print(str(exc))
-   
-def get_version(folder): 
+
+def get_version(folder):
     output = subprocess.run(['git', 'describe', "--tags"], cwd=folder, stdout=subprocess.PIPE).stdout
     return output.decode('utf-8').strip()
 
@@ -198,12 +198,12 @@ def print_summary():
     for (desc, git_link) in repos:
         print("[+] Package STM32%s version: %s" % (str.upper(desc), get_version(get_target_folder_from_gitlink(git_link))))
 
-def create_tarball(pack_folder_root="created_package"): 
+def create_tarball(pack_folder_root="created_package"):
     print("[.] Creating package. This will take a while.")
     if run_command(["pio", "package", "pack", pack_folder_root], cwd=get_script_directory()):
         print("[+] Package created.")
         for p in Path(get_script_directory()).glob("framework-stm32cube-*.tar.gz"):
-            print("[+] %s (%.2f MB)" % (p, p.stat().st_size / 1024.0 / 1024.0))               
+            print("[+] %s (%.2f MB)" % (p, p.stat().st_size / 1024.0 / 1024.0))
     else:
         print("[+] Package creation failed! Check output")
 
@@ -229,7 +229,7 @@ if __name__ == "__main__":
     verbose = args.verbose
     do_create_tarball = args.create_tarball
     skip = args.skip_update
-    if args.show_versions: 
+    if args.show_versions:
         print_summary()
         exit(0)
     main_func(verbose, do_create_tarball, skip)
