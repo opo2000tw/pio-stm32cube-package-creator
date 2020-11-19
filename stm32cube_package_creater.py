@@ -87,6 +87,7 @@ def copy_sdk_directories(git_link, target_folder, target_folder_root):
         "Drivers",
         "Utilities",
         "Middlewares",
+        # "USB_HOST",
         "package.xml",
         "Release_Notes.html",
         "License.md"
@@ -110,14 +111,14 @@ def copy_sdk_directories(git_link, target_folder, target_folder_root):
     # special case: duplicate stm32YYxx_hal_conf_template.h from source download as stm32YYxx_hal_conf.h in target.
     # this is what the current framawork-stm32cube package does, too..
     # works for all tested repos
-    source_template = Path(download_root, "Drivers", "STM32" + str.upper(target_folder) + "xx_HAL_Driver", "Inc",  "stm32" + str.lower(target_folder) + "xx_hal_conf_template.h")
-    dest_file = Path(target_root, "Drivers", "STM32" + str.upper(target_folder) + "xx_HAL_Driver", "Inc",  "stm32" + str.lower(target_folder) + "xx_hal_conf.h")
-    print("Copying conf template from %s to %s" % (source_template, dest_file))
-    try:
-        shutil.copy2(source_template, dest_file)
-    except Exception as exc:
-        print("[-] Exception during copying.")
-        print(str(exc))
+    # source_template = Path(download_root, "Drivers", "STM32" + str.upper(target_folder) + "xx_HAL_Driver", "Inc",  "stm32" + str.lower(target_folder) + "xx_hal_conf_template.h")
+    # dest_file = Path(target_root, "Drivers", "STM32" + str.upper(target_folder) + "xx_HAL_Driver", "Inc",  "stm32" + str.lower(target_folder) + "xx_hal_conf.h")
+    # print("Copying conf template from %s to %s" % (source_template, dest_file))
+    # try:
+    #     shutil.copy2(source_template, dest_file)
+    # except Exception as exc:
+    #     print("[-] Exception during copying.")
+    #     print(str(exc))
 
     # fixup step 2:
     # stm32cube builder scripts excepts all libs to be in Drivers/CMSIS/Lib/GCC.
@@ -156,7 +157,7 @@ def copy_sdk_directories(git_link, target_folder, target_folder_root):
 
 def copy_all_sdk_dirs(target_folder_root="created_package"):
     for (desc, git_link) in repos:
-        print("[+] Copying downloaded SDK folders into new package for %s" % (str.upper(desc)))
+        print("[+] Copying downloaded SDK folders into new package for %s" % desc.upper())
         # desc text is also target folder name
         copy_sdk_directories(git_link, desc, target_folder_root)
 
@@ -166,12 +167,12 @@ def get_package_datecode():
 def create_pio_package(target_folder_root="created_package"):
     src_path = Path(os.path.join(get_script_directory(), "original_platformio_folder"))
     dest_path = Path(os.path.join(get_script_directory(), target_folder_root, "platformio"))
-    print("[.] Copying %s to %s" % (src_path, dest_path))
+    print("[.] Copying %s to %s" % (src_path.name, dest_path.name))
     try:
         shutil.copytree(src_path, dest_path)
-    except Exception as exc:
+    except Exception as e:
         print("[-] Exception during copying.")
-        print(str(exc))
+        print(e)
     # create update package.json
     package_data = {
         "description": "STM32Cube embedded software libraries",
@@ -224,7 +225,8 @@ if __name__ == "__main__":
                     action="store_true")
     parser.add_argument("-s", "--skip-update", help="Do not update repositories, just create new package.",
                     action="store_true")
-    parser.add_argument("--show-versions", help="Only show versions of downloaded pacakges.", action="store_true")
+    parser.add_argument("-V","--show-versions", help="Only show versions of downloaded pacakges.",
+                    action="store_true")
     args = parser.parse_args()
     verbose = args.verbose
     do_create_tarball = args.create_tarball
